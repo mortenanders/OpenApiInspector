@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace OpenApiInspector
 {
-    
+
     public class UnitTest1
     {
         private readonly ITestOutputHelper output;
@@ -15,7 +15,7 @@ namespace OpenApiInspector
         private readonly OpenApiValidationRuleSet ruleSet;
         private readonly OpenApiDocument document;
         private readonly OpenApiWalker walker;
-        
+
         public UnitTest1(ITestOutputHelper testOutputHelper)
         {
             output = testOutputHelper;
@@ -26,24 +26,36 @@ namespace OpenApiInspector
             document = new OpenApiStreamReader().Read(File.OpenRead(".\\petstore.yaml"), out diagnostic);
         }
         [Fact]
-        public void RouteSegmentsMustBePlural()
+        public void RouteRules()
         {
             ruleSet.Add(OpenApiPathRules.RouteSegmentsMustBePlural);
+            ruleSet.Add(OpenApiPathRules.RouteParametersMustBePascalcased);
+            ruleSet.Add(OpenApiPathRules.RoutesMustBeLowercased);
+            ruleSet.Add(OpenApiPathRules.RoutesMustNotUseDelimiters);
             walker.Walk(document);
             DisplayErrors();
-            
+
         }
 
         [Fact]
         public void PropertiesMustBePascalCased()
-        {            
+        {
             ruleSet.Add(OpenApiPropertyRules.PropertiesMustBePascalCased);
             walker.Walk(document);
             DisplayErrors();
-            
+
         }
 
-        public void DisplayErrors(){
+        [Fact]
+        public void MustUseCollectionEnvelope()
+        {
+            ruleSet.Add(OpenApiResponseRules.MustUseCollectionEnvelope);
+            walker.Walk(document);
+            DisplayErrors();
+        }
+
+        public void DisplayErrors()
+        {
             foreach (var error in inspector.Errors)
             {
                 output.WriteLine(error.ToString());

@@ -7,7 +7,7 @@ info:
 servers:
   - url: http://petstore.swagger.io/v1
 paths:
-  /pets:
+  /Pe-ts:
     get:
       summary: List all pets
       operationId: listPets

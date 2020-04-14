@@ -6,7 +6,8 @@ using System.Reflection;
 using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Validations;
 
-namespace OpenApiInspector{
+namespace OpenApiInspector
+{
     public abstract class OpenApiValidationRule
     {
         public abstract Type ElementType { get; }
