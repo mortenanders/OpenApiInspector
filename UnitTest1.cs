@@ -30,6 +30,23 @@ namespace OpenApiInspector
             }
             
         }
+
+        [Fact]
+        public void PropertiesMustBePascalCased()
+        {
+            var ruleSet = new OpenApiValidationRuleSet();
+            ruleSet.Add(OpenApiPropertyRules.PropertiesMustBePascalCased);
+            var inspector = new OpenApiInspector(ruleSet);
+            var walker = new OpenApiWalker(inspector);
+            OpenApiDiagnostic diagnostic;
+            var document = new OpenApiStreamReader().Read(File.OpenRead(".\\petstore.yaml"), out diagnostic);
+            walker.Walk(document);
+            foreach (var error in inspector.Errors)
+            {
+                output.WriteLine(error.ToString());
+            }
+            
+        }
     }
 
 }

@@ -52,13 +52,18 @@ namespace OpenApiInspector
             }
 
             var rules = _ruleSet.FindRules(type);
-            foreach (var rule in rules)
-            {
-                rule.Evaluate(this as IValidationContext, item);
+            if (rules != null){
+                foreach (var rule in rules)
+                {
+                    rule.Evaluate(this as IValidationContext, item);
+                }
             }
+            
         }
 
         public override void Visit(OpenApiPaths item) => Validate(item);
+        public override void Visit(OpenApiSchema item) => Validate(item);
+
     }
 
     public static class ValidationContextExtensions
