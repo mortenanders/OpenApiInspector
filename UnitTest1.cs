@@ -1,4 +1,5 @@
 using System.IO;
+using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
 using Microsoft.OpenApi.Services;
 using Xunit;
@@ -10,42 +11,43 @@ namespace OpenApiInspector
     public class UnitTest1
     {
         private readonly ITestOutputHelper output;
-        public UnitTest1(ITestOutputHelper output)
+        private readonly OpenApiInspector inspector;
+        private readonly OpenApiValidationRuleSet ruleSet;
+        private readonly OpenApiDocument document;
+        private readonly OpenApiWalker walker;
+        
+        public UnitTest1(ITestOutputHelper testOutputHelper)
         {
-            this.output = output;
+            output = testOutputHelper;
+            ruleSet = new OpenApiValidationRuleSet();
+            inspector = new OpenApiInspector(ruleSet);
+            walker = new OpenApiWalker(inspector);
+            OpenApiDiagnostic diagnostic;
+            document = new OpenApiStreamReader().Read(File.OpenRead(".\\petstore.yaml"), out diagnostic);
         }
         [Fact]
         public void RouteSegmentsMustBePlural()
         {
-            var ruleSet = new OpenApiValidationRuleSet();
             ruleSet.Add(OpenApiPathRules.RouteSegmentsMustBePlural);
-            var inspector = new OpenApiInspector(ruleSet);
-            var walker = new OpenApiWalker(inspector);
-            OpenApiDiagnostic diagnostic;
-            var document = new OpenApiStreamReader().Read(File.OpenRead(".\\petstore.yaml"), out diagnostic);
             walker.Walk(document);
-            foreach (var error in inspector.Errors)
-            {
-                output.WriteLine(error.ToString());
-            }
+            DisplayErrors();
             
         }
 
         [Fact]
         public void PropertiesMustBePascalCased()
-        {
-            var ruleSet = new OpenApiValidationRuleSet();
+        {            
             ruleSet.Add(OpenApiPropertyRules.PropertiesMustBePascalCased);
-            var inspector = new OpenApiInspector(ruleSet);
-            var walker = new OpenApiWalker(inspector);
-            OpenApiDiagnostic diagnostic;
-            var document = new OpenApiStreamReader().Read(File.OpenRead(".\\petstore.yaml"), out diagnostic);
             walker.Walk(document);
+            DisplayErrors();
+            
+        }
+
+        public void DisplayErrors(){
             foreach (var error in inspector.Errors)
             {
                 output.WriteLine(error.ToString());
             }
-            
         }
     }
 
