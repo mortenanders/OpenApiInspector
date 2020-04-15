@@ -2,23 +2,21 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Validations;
 
 namespace OpenApiInspector
 {
-    public abstract class OpenApiValidationRule
+    public abstract class ValidationRule
     {
         public abstract Type ElementType { get; }
 
-        public abstract void Evaluate(IValidationContext context, object item);
+        public abstract void Evaluate(OpenApiInspector context, object item);
     }
 
-    public class OpenApiValidationRule<T> : OpenApiValidationRule where T : IOpenApiElement
+    public class ValidationRule<T> : ValidationRule where T : IOpenApiElement
     {
-        private readonly Action<IValidationContext, T> _validate;
-        public OpenApiValidationRule(Action<IValidationContext, T> validate)
+        private readonly Action<OpenApiInspector, T> _validate;
+        public ValidationRule(Action<OpenApiInspector, T> validate)
         {
             _validate = validate;
         }
@@ -28,7 +26,7 @@ namespace OpenApiInspector
             get { return typeof(T); }
         }
 
-        public override void Evaluate(IValidationContext context, object item)
+        public override void Evaluate(OpenApiInspector context, object item)
         {
             if (item == null)
             {
@@ -39,15 +37,15 @@ namespace OpenApiInspector
         }
     }
 
-    public sealed class OpenApiValidationRuleSet : IEnumerable<OpenApiValidationRule>
+    public sealed class OpenApiValidationRuleSet : IEnumerable<ValidationRule>
     {
-        private IDictionary<Type, IList<OpenApiValidationRule>> _rules = new Dictionary<Type, IList<OpenApiValidationRule>>();
+        private IDictionary<Type, IList<ValidationRule>> _rules = new Dictionary<Type, IList<ValidationRule>>();
 
-        private IList<OpenApiValidationRule> _emptyRules = new List<OpenApiValidationRule>();
+        private IList<ValidationRule> _emptyRules = new List<ValidationRule>();
 
-        public IList<OpenApiValidationRule> FindRules(Type type)
+        public IList<ValidationRule> FindRules(Type type)
         {
-            IList<OpenApiValidationRule> results = null;
+            IList<ValidationRule> results = null;
             _rules.TryGetValue(type, out results);
             return results;
         }
@@ -56,7 +54,7 @@ namespace OpenApiInspector
         {
         }
 
-        public IList<OpenApiValidationRule> Rules
+        public IList<ValidationRule> Rules
         {
             get
             {
@@ -64,17 +62,17 @@ namespace OpenApiInspector
             }
         }
 
-        public void Add(OpenApiValidationRule rule)
+        public void Add(ValidationRule rule)
         {
             if (!_rules.ContainsKey(rule.ElementType))
             {
-                _rules[rule.ElementType] = new List<OpenApiValidationRule>();
+                _rules[rule.ElementType] = new List<ValidationRule>();
             }
 
             _rules[rule.ElementType].Add(rule);
         }
 
-        public IEnumerator<OpenApiValidationRule> GetEnumerator()
+        public IEnumerator<ValidationRule> GetEnumerator()
         {
             foreach (var ruleList in _rules.Values)
             {

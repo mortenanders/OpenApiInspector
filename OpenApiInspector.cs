@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Services;
-using Microsoft.OpenApi.Validations;
 
 namespace OpenApiInspector
 {
-    public class OpenApiInspector : OpenApiVisitorBase, IValidationContext
+    public enum OpenApiInspectorErrorType { Route, Payload }
+    public class OpenApiInspector : OpenApiVisitorBase
     {
         private readonly OpenApiValidationRuleSet _ruleSet;
-        private readonly IList<OpenApiValidatorError> _errors = new List<OpenApiValidatorError>();
+        private readonly IList<ValidationError> _errors = new List<ValidationError>();
 
         public OpenApiInspector(OpenApiValidationRuleSet ruleSet = null)
         {
             _ruleSet = ruleSet;
         }
 
-        public IEnumerable<OpenApiValidatorError> Errors
+        public IEnumerable<ValidationError> Errors
         {
             get
             {
@@ -25,7 +25,7 @@ namespace OpenApiInspector
             }
         }
 
-        public void AddError(OpenApiValidatorError error)
+        public void AddError(ValidationError error)
         {
             _errors.Add(error);
         }
@@ -41,7 +41,7 @@ namespace OpenApiInspector
         {
             if (item == null)
             {
-                return;  // Required fields should be checked by higher level objects
+                return;
             }
 
             // Validate unresolved references as references
@@ -56,10 +56,15 @@ namespace OpenApiInspector
             {
                 foreach (var rule in rules)
                 {
-                    rule.Evaluate(this as IValidationContext, item);
+                    rule.Evaluate(this, item);
                 }
             }
 
+        }
+
+        public void CreateError(ValidationErrorCategory validationErrorCategory, string ruleName, string message)
+        {
+            AddError(new ValidationError(ruleName, PathString, message, validationErrorCategory));
         }
 
         public override void Visit(OpenApiPaths item) => Validate(item);
@@ -68,12 +73,4 @@ namespace OpenApiInspector
 
     }
 
-    public static class ValidationContextExtensions
-    {
-        public static void CreateError(this IValidationContext context, string ruleName, string message)
-        {
-            OpenApiValidatorError error = new OpenApiValidatorError(ruleName, context.PathString, message);
-            context.AddError(error);
-        }
-    }
 }

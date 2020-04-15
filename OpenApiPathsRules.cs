@@ -18,8 +18,8 @@ namespace OpenApiInspector
             return path.Split("/").Select(segment => segment.Trim()).Where(segment => !string.IsNullOrEmpty(segment) && (segment.StartsWith("{") && segment.EndsWith("}")));
         }
 
-        public static OpenApiValidationRule<OpenApiPaths> RouteSegmentsMustBePlural =>
-            new OpenApiValidationRule<OpenApiPaths>(
+        public static ValidationRule<OpenApiPaths> RouteSegmentsMustBePlural =>
+            new ValidationRule<OpenApiPaths>(
                 (context, paths) =>
                 {
                     foreach (var path in paths)
@@ -28,14 +28,14 @@ namespace OpenApiInspector
                         {
                             if (!segment.EndsWith("s"))
                             {
-                                context.CreateError(nameof(RouteSegmentsMustBePlural), string.Format("In the route '{1}', the segment '{0}' is not plural", segment, path.Key));
+                                context.CreateError(ValidationErrorCategory.Route, nameof(RouteSegmentsMustBePlural), string.Format("In the route '{1}', the segment '{0}' is not plural", segment, path.Key));
                             }
                         }
                     }
                 });
 
-        public static OpenApiValidationRule<OpenApiPaths> RoutesMustBeLowercased =>
-            new OpenApiValidationRule<OpenApiPaths>(
+        public static ValidationRule<OpenApiPaths> RoutesMustBeLowercased =>
+            new ValidationRule<OpenApiPaths>(
                 (context, paths) =>
                 {
                     foreach (var path in paths)
@@ -44,14 +44,14 @@ namespace OpenApiInspector
                         {
                             if (segment.ToLower() != segment)
                             {
-                                context.CreateError(nameof(RoutesMustBeLowercased), string.Format("In the route '{1}', the segment '{0}' is not lowercased", segment, path.Key));
+                                context.CreateError(ValidationErrorCategory.Route, nameof(RoutesMustBeLowercased), string.Format("In the route '{1}', the segment '{0}' is not lowercased", segment, path.Key));
                             }
                         }
                     }
                 });
 
-        public static OpenApiValidationRule<OpenApiPaths> RoutesMustNotUseDelimiters =>
-            new OpenApiValidationRule<OpenApiPaths>(
+        public static ValidationRule<OpenApiPaths> RoutesMustNotUseDelimiters =>
+            new ValidationRule<OpenApiPaths>(
                 (context, paths) =>
                 {
                     foreach (var path in paths)
@@ -60,14 +60,14 @@ namespace OpenApiInspector
                         {
                             if (new Regex("[^a-z]+", RegexOptions.IgnoreCase).IsMatch(segment))
                             {
-                                context.CreateError(nameof(RoutesMustNotUseDelimiters), string.Format("In the route '{1}', the segment '{0}' contains non-alphanumeric characters", segment, path.Key));
+                                context.CreateError(ValidationErrorCategory.Route, nameof(RoutesMustNotUseDelimiters), string.Format("In the route '{1}', the segment '{0}' contains non-alphanumeric characters", segment, path.Key));
                             }
                         }
                     }
                 });
 
-        public static OpenApiValidationRule<OpenApiPaths> RouteParametersMustBePascalcased =>
-            new OpenApiValidationRule<OpenApiPaths>(
+        public static ValidationRule<OpenApiPaths> RouteParametersMustBePascalcased =>
+            new ValidationRule<OpenApiPaths>(
                 (context, paths) =>
                 {
                     foreach (var path in paths)
@@ -77,7 +77,7 @@ namespace OpenApiInspector
                             var secondLetter = segment.Substring(1, 1);
                             if (secondLetter != secondLetter.ToUpper())
                             {
-                                context.CreateError(nameof(RouteParametersMustBePascalcased), string.Format("In the route '{1}', the parameter '{0}' is not pascalcased", segment, path.Key));
+                                context.CreateError(ValidationErrorCategory.Route, nameof(RouteParametersMustBePascalcased), string.Format("In the route '{1}', the parameter '{0}' is not pascalcased", segment, path.Key));
                             }
                         }
                     }

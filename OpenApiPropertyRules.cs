@@ -5,8 +5,8 @@ namespace OpenApiInspector
 {
     public static class OpenApiPropertyRules
     {
-        public static OpenApiValidationRule<OpenApiSchema> PropertiesMustBePascalCased =>
-            new OpenApiValidationRule<OpenApiSchema>(
+        public static ValidationRule<OpenApiSchema> PropertiesMustBePascalCased =>
+            new ValidationRule<OpenApiSchema>(
                 (context, schema) =>
                 {
                     foreach (var property in schema.Properties)
@@ -15,7 +15,7 @@ namespace OpenApiInspector
                         if (firstLetter != firstLetter.ToUpper())
                         {
                             context.Enter(property.Key);
-                            context.CreateError(nameof(PropertiesMustBePascalCased), string.Format("The property '{0}' is not Pascalcased", property.Key));
+                            context.CreateError(ValidationErrorCategory.Payload, nameof(PropertiesMustBePascalCased), string.Format("The property '{0}' is not Pascalcased", property.Key));
                             context.Exit();
                         }
                     }

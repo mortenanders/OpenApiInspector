@@ -6,8 +6,8 @@ namespace OpenApiInspector
 {
     public static class OpenApiResponseRules
     {
-        public static OpenApiValidationRule<OpenApiResponses> MustUseCollectionEnvelope =>
-            new OpenApiValidationRule<OpenApiResponses>(
+        public static ValidationRule<OpenApiResponses> MustUseCollectionEnvelope =>
+            new ValidationRule<OpenApiResponses>(
                 (context, responses) =>
                 {
                     var okResponses = responses.Where(r => r.Key == "200")
@@ -18,7 +18,7 @@ namespace OpenApiInspector
                     {
                         if (schema.Type == "array")
                         {
-                            context.CreateError(nameof(MustUseCollectionEnvelope), "If the intent is to return a list, the collection envelope should be used");
+                            context.CreateError(ValidationErrorCategory.Payload, nameof(MustUseCollectionEnvelope), "If the intent is to return a list, the collection envelope should be used");
                         }
 
                     }
