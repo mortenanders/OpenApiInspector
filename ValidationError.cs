@@ -2,7 +2,7 @@ using Microsoft.OpenApi.Validations;
 
 namespace OpenApiInspector
 {
-    public enum ValidationErrorCategory { Route, Payload }
+    public enum ValidationErrorCategory { Route, Payload, Documentation, StatusCode }
     public class ValidationError : OpenApiValidatorError
     {
         public ValidationErrorCategory ValidationErrorCategory { get; }
