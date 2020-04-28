@@ -74,8 +74,9 @@ namespace OpenApiInspector
                     {
                         foreach (var segment in ExtractParameterSegments(path.Key))
                         {
-                            var secondLetter = segment.Substring(1, 1);
-                            if (secondLetter != secondLetter.ToUpper())
+                            // looking for the second char, as the first is a parenthesis
+                            var secondChar = segment.Substring(1, 1);
+                            if (secondChar != secondChar.ToUpper())
                             {
                                 context.CreateError(ValidationErrorCategory.Route, nameof(RouteParametersMustBePascalcased), string.Format("In the route '{1}', the parameter '{0}' is not pascalcased", segment, path.Key));
                             }

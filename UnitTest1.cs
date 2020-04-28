@@ -54,7 +54,7 @@ namespace OpenApiInspector
             DisplayErrors();
         }
 
-        public void DisplayErrors()
+        private void DisplayErrors()
         {
             foreach (var error in inspector.Errors)
             {
